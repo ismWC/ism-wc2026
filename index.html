@@ -347,6 +347,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
             <select class="finp" id="fc" style="cursor:pointer">
               <option value="">Select your office…</option>
               <option value="Spain">🇪🇸 Spain</option>
+              <option value="Group">🏢 Group</option>
               <option value="Mexico">🇲🇽 Mexico</option>
               <option value="France">🇫🇷 France</option>
               <option value="Italy">🇮🇹 Italy</option>
@@ -492,6 +493,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
             <button class="lb-filter" onclick="filterLB('Philippines',this)">🇵🇭</button>
             <button class="lb-filter" onclick="filterLB('Argentina',this)">🇦🇷</button>
             <button class="lb-filter" onclick="filterLB('Poland',this)">🇵🇱</button>
+            <button class="lb-filter" onclick="filterLB('Chile',this)">🇨🇱</button>
+            <button class="lb-filter" onclick="filterLB('Group',this)">🏢</button>
           </div>
           <button onclick="refreshLB()" style="background:none;border:0.5px solid var(--border);border-radius:6px;padding:3px 9px;font-size:11px;color:var(--text2);cursor:pointer;display:flex;align-items:center;gap:3px">
             <i class="ti ti-refresh" style="font-size:11px"></i> Refresh
@@ -1137,7 +1140,17 @@ async function submitEntry(){
     switchG(emptyGroups[0]);
     return;
   }
-  btn.disabled=true; btn.innerHTML='<i class="ti ti-loader"></i> Saving…';
+  // Validate bonuses are filled
+  const bMvp    = document.getElementById('b-mvp').value.trim();
+  const bScorer = document.getElementById('b-scorer').value.trim();
+  const bMg     = document.getElementById('b-mg').value.trim();
+  const bFg     = document.getElementById('b-fg').value.trim();
+  if(!bMvp || !bScorer || !bMg || !bFg){
+    const missing = [!bMvp&&'MVP', !bScorer&&'Top scorer', !bMg&&'Most goals', !bFg&&'Best defence'].filter(Boolean);
+    showToast(`Complete the bonus fields: ${missing.join(', ')}`);
+    document.getElementById('b-mvp').scrollIntoView({behavior:'smooth', block:'center'});
+    return;
+  }
 
   const bonus={mvp:document.getElementById('b-mvp').value,scorer:document.getElementById('b-scorer').value,mg:document.getElementById('b-mg').value,fg:document.getElementById('b-fg').value};
   const koData={};
@@ -1894,7 +1907,7 @@ const PLAYER_LIST = [
   'Mikel Oyarzabal','João Neves',
   // Brazil 🇧🇷
   'Vinicius Jr','Rodrygo','Endrick','Raphinha','Lucas Paquetá','Casemiro',
-  // England 🏴󠁧󠁢󠁥󠁮󠁧󠁿
+  // England 🇬🇧
   'Jude Bellingham','Harry Kane','Bukayo Saka','Phil Foden','Declan Rice',
   'Marcus Rashford','Trent Alexander-Arnold',
   // Germany 🇩🇪
@@ -1915,32 +1928,32 @@ const PLAYER_LIST = [
 const PLAYER_NATION = {
   'Achraf Hakimi':'🇲🇦','Adrien Rabiot':'🇫🇷','Alexis Mac Allister':'🇦🇷',
   'Antoine Griezmann':'🇫🇷','Aurélien Tchouaméni':'🇫🇷','Aymeric Laporte':'🇪🇸',
-  'Bernardo Silva':'🇵🇹','Bruno Fernandes':'🇵🇹','Bukayo Saka':'🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+  'Bernardo Silva':'🇵🇹','Bruno Fernandes':'🇵🇹','Bukayo Saka':'🇬🇧',
   'Casemiro':'🇧🇷','Christian Pulisic':'🇺🇸','Cody Gakpo':'🇳🇱',
   'Cristiano Ronaldo':'🇵🇹','Dani Olmo':'🇪🇸','Darwin Núñez':'🇺🇾',
-  'Declan Rice':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','Diogo Jota':'🇵🇹','Edson Álvarez':'🇲🇽',
+  'Declan Rice':'🇬🇧','Diogo Jota':'🇵🇹','Edson Álvarez':'🇲🇽',
   'Eduardo Camavinga':'🇫🇷','Endrick':'🇧🇷','Enzo Fernández':'🇦🇷',
   'Erling Haaland':'🇳🇴','Fabián Ruiz':'🇪🇸','Federico Valverde':'🇺🇾',
   'Ferran Torres':'🇪🇸','Florian Wirtz':'🇩🇪','Frenkie de Jong':'🇳🇱',
   'Gavi':'🇪🇸','Gonçalo Ramos':'🇵🇹','Guillermo Ochoa':'🇲🇽',
-  'Hakim Ziyech':'🇲🇦','Harry Kane':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','Hirving Lozano':'🇲🇽',
+  'Hakim Ziyech':'🇲🇦','Harry Kane':'🇬🇧','Hirving Lozano':'🇲🇽',
   'Jamal Musiala':'🇩🇪','James Rodríguez':'🇨🇴','João Félix':'🇵🇹',
-  'João Neves':'🇵🇹','Jude Bellingham':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','Julián Álvarez':'🇦🇷',
+  'João Neves':'🇵🇹','Jude Bellingham':'🇬🇧','Julián Álvarez':'🇦🇷',
   'Kai Havertz':'🇩🇪','Kevin De Bruyne':'🇧🇪','Kylian Mbappé':'🇫🇷',
   'Lamine Yamal':'🇪🇸','Lautaro Martínez':'🇦🇷','Leroy Sané':'🇩🇪',
   'Lionel Messi':'🇦🇷','Lois Openda':'🇧🇪','Lucas Paquetá':'🇧🇷',
-  'Luis Díaz':'🇨🇴','Marcus Rashford':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','Marcus Thuram':'🇫🇷',
+  'Luis Díaz':'🇨🇴','Marcus Rashford':'🇬🇧','Marcus Thuram':'🇫🇷',
   'Matty Cash':'🇵🇱','Memphis Depay':'🇳🇱','Mike Maignan':'🇫🇷',
   'Mikel Oyarzabal':'🇪🇸','Mohamed Salah':'🇪🇬','Nico Williams':'🇪🇸',
   'Nicola Zalewski':'🇵🇱','Orbelín Pineda':'🇲🇽','Ousmane Dembélé':'🇫🇷',
   'Pablo Barrios':'🇪🇸','Paulo Dybala':'🇦🇷','Pedri':'🇪🇸',
-  'Pedro Neto':'🇵🇹','Phil Foden':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','Rafael Leão':'🇵🇹',
+  'Pedro Neto':'🇵🇹','Phil Foden':'🇬🇧','Rafael Leão':'🇵🇹',
   'Randal Kolo Muani':'🇫🇷','Raphinha':'🇧🇷','Raúl Jiménez':'🇲🇽',
   'Robert Lewandowski':'🇵🇱','Roberto Alvarado':'🇲🇽','Rodri':'🇪🇸',
   'Rodrigo Bentancur':'🇺🇾','Rodrigo De Paul':'🇦🇷','Rodrygo':'🇧🇷',
   'Romelu Lukaku':'🇧🇪','Rúben Dias':'🇵🇹','Sadio Mané':'🇸🇳',
   'Santiago Giménez':'🇲🇽','Theo Hernández':'🇫🇷','Thomas Müller':'🇩🇪',
-  'Trent Alexander-Arnold':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','Unai Simón':'🇪🇸','Victor Osimhen':'🇳🇬',
+  'Trent Alexander-Arnold':'🇬🇧','Unai Simón':'🇪🇸','Victor Osimhen':'🇳🇬',
   'Vinicius Jr':'🇧🇷','Virgil van Dijk':'🇳🇱','Vitinha':'🇵🇹',
   'William Saliba':'🇫🇷','Youssef En-Nesyri':'🇲🇦','Álvaro Morata':'🇪🇸',
   'İlkay Gündoğan':'🇩🇪',
