@@ -308,16 +308,48 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <span class="chip"><i class="ti ti-calendar-event"></i> Jun 11 – Jul 19, 2026</span>
         <span class="chip"><i class="ti ti-users"></i> All ISM offices worldwide</span>
       </div>
-      <button class="btn-enter" onclick="nav('entry',document.querySelectorAll('.ni')[1])">
-        <i class="ti ti-pencil" style="font-size:18px"></i> Enter my predictions
-      </button>
-    </div>
+      </div>
     <div class="kpis">
       <div class="kpi accent"><div class="kpi-v" id="kdays">—</div><div class="kpi-l">Days to kickoff</div><div class="kpi-s">Jun 11, Azteca</div></div>
       <div class="kpi"><div class="kpi-v">48</div><div class="kpi-l">Nations</div><div class="kpi-s">12 groups of 4</div></div>
       <div class="kpi"><div class="kpi-v">104</div><div class="kpi-l">Matches</div><div class="kpi-s">72 group + 32 KO</div></div>
       <div class="kpi"><div class="kpi-v" style="color:var(--ism)" id="kentries">—</div><div class="kpi-l">Entries</div><div class="kpi-s">Across all offices</div></div>
     </div>
+
+    <!-- Quick navigation buttons -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+      <button onclick="nav('leaderboard',document.querySelectorAll('.ni')[2])"
+        style="background:var(--ism);color:white;border:none;border-radius:12px;padding:18px 14px;cursor:pointer;text-align:center;transition:opacity .15s"
+        onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+        <i class="ti ti-list-numbers" style="font-size:26px;display:block;margin-bottom:6px"></i>
+        <div style="font-weight:600;font-size:14px">Leaderboard</div>
+        <div style="font-size:11px;opacity:.8;margin-top:2px">Current standings</div>
+      </button>
+      <button onclick="nav('predictions',document.getElementById('ni-predictions'))"
+        style="background:var(--bg2);color:var(--text);border:0.5px solid var(--border);border-radius:12px;padding:18px 14px;cursor:pointer;text-align:center;transition:all .15s"
+        onmouseover="this.style.borderColor='var(--ism)'" onmouseout="this.style.borderColor='var(--border)'">
+        <i class="ti ti-eye" style="font-size:26px;display:block;margin-bottom:6px;color:var(--ism)"></i>
+        <div style="font-weight:600;font-size:14px">Predictions</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px">See all picks</div>
+      </button>
+    </div>
+
+    <!-- Top 10 mini leaderboard -->
+    <div class="card" style="margin-bottom:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div class="slabel" style="margin-bottom:0"><i class="ti ti-trophy"></i> Top 10</div>
+        <button onclick="nav('leaderboard',document.querySelectorAll('.ni')[2])"
+          style="font-size:12px;color:var(--ism);background:none;border:none;cursor:pointer;padding:0">
+          View all →
+        </button>
+      </div>
+      <div id="home-top10">
+        <div style="text-align:center;color:var(--text3);font-size:13px;padding:16px 0">
+          <i class="ti ti-loader" style="font-size:18px;display:block;margin-bottom:6px"></i>Loading…
+        </div>
+      </div>
+    </div>
+
     <div class="card">
       <div class="slabel"><i class="ti ti-star"></i> Scoring system</div>
       <div class="sgrid">
@@ -658,6 +690,7 @@ function nav(p,el){
   if(el) el.classList.add('on');
   if(p==='home') calcDays();
   if(p==='leaderboard') loadLeaderboard();
+  if(p==='home') loadLeaderboard();
   if(p==='predictions') loadPredictions();
 }
 
@@ -683,6 +716,31 @@ let lbFilter='all';
 function avatarColor(name){const i=name.charCodeAt(0)%AVATAR_COLORS.length;return AVATAR_COLORS[i];}
 function initials(name){return name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);}
 
+function renderHomeTop10(){
+  const el = document.getElementById('home-top10');
+  if(!el) return;
+  if(!lbData.length){
+    el.innerHTML='<div style="text-align:center;color:var(--text3);font-size:13px;padding:16px 0">No entries yet.</div>';
+    return;
+  }
+  const medals=['🥇','🥈','🥉'];
+  el.innerHTML = lbData.slice(0,10).map((e,i)=>{
+    const initials=(e.name||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    const rank = i<3 ? `<span style="font-size:18px;line-height:1">${medals[i]}</span>`
+                     : `<span style="font-size:13px;font-weight:500;color:var(--text3);width:24px;text-align:center">${i+1}</span>`;
+    const flag = e.office==='Spain'?'🇪🇸':e.office==='Mexico'?'🇲🇽':e.office==='France'?'🇫🇷':e.office==='Italy'?'🇮🇹':e.office==='Portugal'?'🇵🇹':e.office==='Philippines'?'🇵🇭':e.office==='Argentina'?'🇦🇷':e.office==='Poland'?'🇵🇱':e.office==='Chile'?'🇨🇱':e.office==='Group'?'🏢':'';
+    return `<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:0.5px solid var(--border);${i===9?'border-bottom:none':''}">
+      ${rank}
+      <div style="width:28px;height:28px;border-radius:50%;background:var(--isml);color:var(--ismd);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0">${initials}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${e.name||'—'}</div>
+        <div style="font-size:11px;color:var(--text3)">${flag} ${e.office||''}</div>
+      </div>
+      <div style="font-size:15px;font-weight:600;color:var(--ism);flex-shrink:0">${e.total||0}</div>
+    </div>`;
+  }).join('');
+}
+
 function refreshLB(){ lbData=[]; loadLeaderboard(); }
 function refreshPred(){ predData=[]; Object.keys(RESULTS).forEach(k=>delete RESULTS[k]); RESULTS.bonuses=null; loadPredictions(); }
 
@@ -691,22 +749,20 @@ async function loadLeaderboard(){
   if(lbData.length>0){renderLB();return;}
   body.innerHTML='<div style="text-align:center;padding:28px;color:var(--text3);font-size:13px"><i class="ti ti-loader" style="font-size:20px;display:block;margin-bottom:8px"></i>Loading…</div>';
   try{
-    console.log('[LB] Fetching:', SCRIPT_URL+'?action=leaderboard');
     const res=await fetch(`${SCRIPT_URL}?action=leaderboard`);
-    console.log('[LB] HTTP status:', res.status, res.ok);
     if(!res.ok) throw new Error(`HTTP ${res.status}`);
     const text=await res.text();
-    console.log('[LB] Raw response (first 300):', text.slice(0,300));
     const data=JSON.parse(text);
-    console.log('[LB] Entries count:', (data.entries||[]).length);
     lbData=data.entries||[];
+    const ke=document.getElementById('kentries');
+    if(ke) ke.textContent=lbData.length||'—';
+    renderHomeTop10();
     if(lbData.length===0){
       body.innerHTML='<div style="text-align:center;padding:28px;color:var(--text3);font-size:13px">No entries yet — data will appear here after submissions.</div>';
       return;
     }
     renderLB();renderOfficeLB();
   }catch(e){
-    console.error('[LB] Error:', e);
     body.innerHTML=`<div style="text-align:center;padding:28px;color:var(--text3);font-size:13px">
       Could not load standings.<br><span style="font-size:11px;color:#ef4444">${e.message}</span><br>
       <button onclick="refreshLB()" style="margin-top:8px;padding:4px 12px;border:0.5px solid var(--border);border-radius:6px;background:none;color:var(--text2);cursor:pointer;font-size:12px">Retry</button>
@@ -2125,6 +2181,8 @@ function adminLockCheck(){
 // Auto-open admin if URL has #admin hash on load
 window.addEventListener('DOMContentLoaded',()=>{
   if(window.location.hash==='#admin') checkAdmin();
+  // Only auto-load leaderboard when served over HTTP(S) — file:// blocks fetch
+  if(window.location.protocol !== 'file:') loadLeaderboard();
 });
 </script>
 </body>
