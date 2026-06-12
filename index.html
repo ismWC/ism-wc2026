@@ -310,7 +310,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       </div>
       </div>
     <div class="kpis">
-      <div class="kpi accent"><div class="kpi-v" id="kdays">—</div><div class="kpi-l">Days to kickoff</div><div class="kpi-s">Jun 11, Azteca</div></div>
+      <div class="kpi accent"><div class="kpi-v" id="kdays">—</div><div class="kpi-l">Days until final</div><div class="kpi-s">Jul 19 · MetLife Stadium</div></div>
       <div class="kpi"><div class="kpi-v">48</div><div class="kpi-l">Nations</div><div class="kpi-s">12 groups of 4</div></div>
       <div class="kpi"><div class="kpi-v">104</div><div class="kpi-l">Matches</div><div class="kpi-s">72 group + 32 KO</div></div>
       <div class="kpi"><div class="kpi-v" style="color:var(--ism)" id="kentries">—</div><div class="kpi-l">Entries</div><div class="kpi-s">Across all offices</div></div>
@@ -344,6 +344,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         </button>
       </div>
       <div id="home-top10">
+        <div style="text-align:center;color:var(--text3);font-size:13px;padding:16px 0">
+          <i class="ti ti-loader" style="font-size:18px;display:block;margin-bottom:6px"></i>Loading…
+        </div>
+      </div>
+    </div>
+
+    <!-- Top 3 offices -->
+    <div class="card" style="margin-bottom:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div class="slabel" style="margin-bottom:0"><i class="ti ti-building"></i> Top offices</div>
+        <button onclick="nav('leaderboard',document.querySelectorAll('.ni')[2])"
+          style="font-size:12px;color:var(--ism);background:none;border:none;cursor:pointer;padding:0">View all →</button>
+      </div>
+      <div id="home-top3-offices">
         <div style="text-align:center;color:var(--text3);font-size:13px;padding:16px 0">
           <i class="ti ti-loader" style="font-size:18px;display:block;margin-bottom:6px"></i>Loading…
         </div>
@@ -695,7 +709,7 @@ function nav(p,el){
 }
 
 function calcDays(){
-  const d=Math.max(0,Math.ceil((new Date('2026-06-11')-new Date())/86400000));
+  const d=Math.max(0,Math.ceil((new Date('2026-07-19')-new Date())/86400000));
   document.getElementById('kdays').textContent=d;
 }
 calcDays();
@@ -741,6 +755,39 @@ function renderHomeTop10(){
   }).join('');
 }
 
+function renderHomeTop3Offices(){
+  const el = document.getElementById('home-top3-offices');
+  if(!el || !lbData.length) return;
+  const FLAGS = {Spain:'🇪🇸',Mexico:'🇲🇽',France:'🇫🇷',Italy:'🇮🇹',Portugal:'🇵🇹',
+                 Philippines:'🇵🇭',Argentina:'🇦🇷',Poland:'🇵🇱',Chile:'🇨🇱',Group:'🏢'};
+  const medals = ['🥇','🥈','🥉'];
+  const byOffice = {};
+  lbData.forEach(e => {
+    if(!e.office) return;
+    if(!byOffice[e.office]) byOffice[e.office] = {total:0, count:0};
+    byOffice[e.office].total += e.total||0;
+    byOffice[e.office].count++;
+  });
+  const offices = Object.entries(byOffice)
+    .map(([name,d]) => ({name, avg:Math.round(d.total/d.count), count:d.count}))
+    .sort((a,b) => b.avg - a.avg)
+    .slice(0,3);
+  if(!offices.length){ el.innerHTML='<div style="text-align:center;color:var(--text3);font-size:13px;padding:12px 0">No data yet.</div>'; return; }
+  el.innerHTML = offices.map((o,i) => `
+    <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:0.5px solid var(--border);${i===offices.length-1?'border-bottom:none':''}">
+      <span style="font-size:22px;line-height:1">${medals[i]}</span>
+      <span style="font-size:22px;line-height:1">${FLAGS[o.name]||'🌐'}</span>
+      <div style="flex:1">
+        <div style="font-size:14px;font-weight:500">${o.name}</div>
+        <div style="font-size:11px;color:var(--text3)">${o.count} participant${o.count>1?'s':''}</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:16px;font-weight:600;color:var(--ism)">${o.avg}</div>
+        <div style="font-size:10px;color:var(--text3)">avg pts</div>
+      </div>
+    </div>`).join('');
+}
+
 function refreshLB(){ lbData=[]; loadLeaderboard(); }
 function refreshPred(){ predData=[]; Object.keys(RESULTS).forEach(k=>delete RESULTS[k]); RESULTS.bonuses=null; loadPredictions(); }
 
@@ -757,6 +804,7 @@ async function loadLeaderboard(){
     const ke=document.getElementById('kentries');
     if(ke) ke.textContent=lbData.length||'—';
     renderHomeTop10();
+    renderHomeTop3Offices();
     if(lbData.length===0){
       body.innerHTML='<div style="text-align:center;padding:28px;color:var(--text3);font-size:13px">No entries yet — data will appear here after submissions.</div>';
       return;
