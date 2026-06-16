@@ -1312,7 +1312,7 @@ async function submitEntry(){
 const DEADLINE = new Date('2026-06-11T19:00:00Z');
 const ADMIN_PASSWORD = 'ISMadmin2026';
 
-let MANUAL_LOCK = localStorage.getItem('ism_wc_lock') === 'true';
+let MANUAL_LOCK = true; // Tournament started - entries locked
 function isLocked(){return MANUAL_LOCK;}
 
 function checkDeadline(){
