@@ -1470,7 +1470,8 @@ function renderPredGroups(list){
     if(!result) return `<span class="pchip tbd">${pred}</span>`;
     const [r1,r2]=result.split('-');
     const ps=getSign(s1,s2),rs=getSign(r1,r2);
-    if(pred===result) return `<span class="pchip exact">${pred}</span>`;
+    const isExact=parseInt(s1,10)===parseInt(r1,10)&&parseInt(s2,10)===parseInt(r2,10);
+    if(isExact) return `<span class="pchip exact">${pred}</span>`;
     if(ps===rs) return `<span class="pchip hit">${pred}</span>`;
     return `<span class="pchip miss">${pred}</span>`;
   }
