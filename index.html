@@ -1313,6 +1313,7 @@ const DEADLINE = new Date('2026-06-11T19:00:00Z');
 const ADMIN_PASSWORD = 'ISMadmin2026';
 
 let MANUAL_LOCK = true; // Tournament started - entries locked
+let HIDE_PREDICTIONS = false; // Toggle via admin to hide predictions during semis/final
 function isLocked(){return MANUAL_LOCK;}
 
 function checkDeadline(){
@@ -1377,6 +1378,19 @@ const CC_SHORT={
 const RESULTS={};
 
 async function loadPredictions(){
+  if(HIDE_PREDICTIONS){
+    const pg=document.getElementById('pg-predictions');
+    if(pg) pg.innerHTML=`
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 24px;text-align:center;gap:16px">
+        <div style="font-size:48px">🔒</div>
+        <div style="font-size:18px;font-weight:600;color:var(--text)">Predicciones deshabilitadas</div>
+        <div style="font-size:14px;color:var(--text2);max-width:300px;line-height:1.6">
+          El acceso a las predicciones está temporalmente deshabilitado hasta el final del Mundial para preservar la intriga.<br><br>
+          ¡Los resultados se anunciarán pronto! 🏆
+        </div>
+      </div>`;
+    return;
+  }
   const locked=document.getElementById('pred-locked');
   const main=document.getElementById('pred-main');
   const loading=document.getElementById('pred-loading');
@@ -1807,9 +1821,13 @@ function adminOverlayHTML(){
         <button class="adm-tool-btn" id="adm-lock-btn" onclick="adminToggleLock()">🔒 Lock entries (manual)</button>
         <button class="adm-tool-btn" onclick="refreshLB();refreshPred();document.getElementById('adm-tools-status').textContent='✓ Leaderboard & predictions cache cleared'">🔄 Refresh LB cache</button>
         <button class="adm-tool-btn" onclick="loadAdminData()">♻️ Reload admin data</button>
+        <button class="adm-tool-btn" id="adm-hidepred-btn" onclick="adminToggleHidePredictions()" style="grid-column:span 2;background:rgba(234,179,8,0.15);border-color:rgba(234,179,8,0.4);color:#eab308">👁️ Ocultar predicciones (semis/final)</button>
       </div>
       <div id="adm-lock-status" style="margin-top:12px;padding:10px 14px;border-radius:8px;font-size:13px;font-weight:500;background:rgba(34,197,94,0.15);color:#22c55e;border:1px solid rgba(34,197,94,0.3)">
         🔓 Entries OPEN — participants can still submit
+      </div>
+      <div id="adm-hidepred-status" style="margin-top:8px;padding:10px 14px;border-radius:8px;font-size:13px;font-weight:500;background:rgba(34,197,94,0.15);color:#22c55e;border:1px solid rgba(34,197,94,0.3)">
+        👁️ Predicciones VISIBLES — los participantes pueden verlas
       </div>
       <div id="adm-tools-status" style="margin-top:16px;font-size:13px;color:#94a3b8;white-space:pre-line"></div>
     </div>
@@ -2201,6 +2219,35 @@ function adminToggleLock(){
   localStorage.setItem('ism_wc_lock', MANUAL_LOCK);
   updateLockUI();
   checkDeadline();
+}
+
+function adminToggleHidePredictions(){
+  HIDE_PREDICTIONS = !HIDE_PREDICTIONS;
+  updateHidePredUI();
+  // If currently on predictions page, refresh it immediately
+  if(document.getElementById('pg-predictions')?.classList.contains('on')){
+    predData=[];
+    loadPredictions();
+  }
+}
+
+function updateHidePredUI(){
+  const st  = document.getElementById('adm-hidepred-status');
+  const btn = document.getElementById('adm-hidepred-btn');
+  if(!st || !btn) return;
+  if(HIDE_PREDICTIONS){
+    st.style.background='rgba(234,179,8,0.15)';
+    st.style.color='#eab308';
+    st.style.borderColor='rgba(234,179,8,0.4)';
+    st.textContent='🔒 Predicciones OCULTAS — los participantes ven mensaje de bloqueo';
+    btn.textContent='👁️ Mostrar predicciones';
+  } else {
+    st.style.background='rgba(34,197,94,0.15)';
+    st.style.color='#22c55e';
+    st.style.borderColor='rgba(34,197,94,0.3)';
+    st.textContent='👁️ Predicciones VISIBLES — los participantes pueden verlas';
+    btn.textContent='🙈 Ocultar predicciones (semis/final)';
+  }
 }
 
 function updateLockUI(){
