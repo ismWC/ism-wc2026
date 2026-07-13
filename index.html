@@ -1313,7 +1313,7 @@ const DEADLINE = new Date('2026-06-11T19:00:00Z');
 const ADMIN_PASSWORD = 'ISMadmin2026';
 
 let MANUAL_LOCK = true; // Tournament started - entries locked
-let HIDE_PREDICTIONS = false; // Toggle via admin to hide predictions during semis/final
+let HIDE_PREDICTIONS = true; // Predictions hidden during semis/final
 function isLocked(){return MANUAL_LOCK;}
 
 function checkDeadline(){
