@@ -625,6 +625,55 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   </div>
 </div>
 
+<!-- ═══════════════════════════════════════════════════════
+     RESULTADOS PAGE — accessible via #resultados hash only
+     URL: yourusername.github.io/ism-wc2026/#resultados
+     ═══════════════════════════════════════════════════════ -->
+<div id="pg-resultados" style="display:none;min-height:100vh;background:var(--bg)">
+
+  <!-- Header -->
+  <div style="background:var(--white);border-bottom:0.5px solid var(--border);padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:100">
+    <div style="display:flex;align-items:center;gap:10px">
+      <span style="font-size:15px;font-weight:600;color:var(--text)">ISM World Cup Pool 2026</span>
+      <span style="font-size:11px;padding:3px 10px;border-radius:20px;background:var(--isml);color:var(--ismd);border:0.5px solid #6bbce8;font-weight:500;display:flex;align-items:center;gap:4px"><i class="ti ti-trophy" style="font-size:12px"></i> Final Standings</span>
+    </div>
+    <button onclick="window.print()" style="font-size:12px;color:var(--text2);background:var(--bg2);border:0.5px solid var(--border);border-radius:6px;padding:5px 12px;cursor:pointer;display:flex;align-items:center;gap:5px"><i class="ti ti-printer" style="font-size:13px"></i> Print / Save</button>
+  </div>
+
+  <div style="max-width:880px;margin:0 auto;padding:20px 16px 60px">
+
+    <!-- Hero -->
+    <div style="padding:26px 28px 22px;position:relative;overflow:hidden;background:#007fc6;border-radius:12px;margin-bottom:12px">
+      <div style="position:absolute;inset:0;background-image:repeating-linear-gradient(0deg,rgba(255,255,255,.04) 0,rgba(255,255,255,.04) 1px,transparent 1px,transparent 48px),repeating-linear-gradient(90deg,rgba(255,255,255,.04) 0,rgba(255,255,255,.04) 1px,transparent 1px,transparent 48px);pointer-events:none"></div>
+      <div style="position:absolute;right:-80px;top:-80px;width:280px;height:280px;border-radius:50%;border:40px solid rgba(255,255,255,.07);pointer-events:none"></div>
+      <div style="position:relative">
+        <div style="font-size:10px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.7);margin-bottom:8px">⚽ FIFA World Cup 2026 — ISM Prediction Pool</div>
+        <div style="font-size:24px;font-weight:600;color:white;margin-bottom:4px">Final Standings</div>
+        <div style="font-size:13px;color:rgba(255,255,255,.8)" id="res-hero-sub">Loading results…</div>
+      </div>
+    </div>
+
+    <!-- Podium top 3 -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px" id="res-podium">
+      <div style="grid-column:span 3;text-align:center;padding:30px;color:var(--text3)"><i class="ti ti-loader" style="font-size:20px"></i></div>
+    </div>
+
+    <!-- Full table -->
+    <div class="card">
+      <div class="slabel"><i class="ti ti-list-numbers"></i> Full Standings</div>
+      <div id="res-full-lb"><div style="text-align:center;padding:30px;color:var(--text3)"><i class="ti ti-loader"></i></div></div>
+    </div>
+
+    <!-- Office ranking -->
+    <div class="card">
+      <div class="slabel"><i class="ti ti-building"></i> Office Rankings</div>
+      <div id="res-office-lb"><div style="text-align:center;padding:30px;color:var(--text3)"><i class="ti ti-loader"></i></div></div>
+    </div>
+
+    <div style="text-align:center;font-size:11px;color:var(--text3);padding:16px 0">ISM World Cup Pool 2026 · <span id="res-updated"></span></div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -1322,6 +1371,14 @@ const ADMIN_PASSWORD = 'ISMadmin2026';
 
 let MANUAL_LOCK = true; // Tournament started - entries locked
 let HIDE_PREDICTIONS = true; // Predictions hidden during semis/final
+
+// ─── TO PUBLISH FINAL RESULTS ────────────────────────────────────────────────
+// When ready to announce the winner, change these two lines:
+//   HIDE_PREDICTIONS = false   → predictions visible again
+// And remove (or set to false) the two frozen banners in the HTML:
+//   Search "Standings frozen" → delete or comment those two banner divs
+// Then redeploy to GitHub Pages. That's it.
+// ─────────────────────────────────────────────────────────────────────────────
 function isLocked(){return MANUAL_LOCK;}
 
 function checkDeadline(){
@@ -2285,9 +2342,120 @@ function adminLockCheck(){
 // Auto-open admin if URL has #admin hash on load
 window.addEventListener('DOMContentLoaded',()=>{
   if(window.location.hash==='#admin') checkAdmin();
+  if(window.location.hash==='#resultados') showResultados();
   // Only auto-load leaderboard when served over HTTP(S) — file:// blocks fetch
-  if(window.location.protocol !== 'file:') loadLeaderboard();
+  if(window.location.protocol !== 'file:' && window.location.hash !== '#resultados') loadLeaderboard();
 });
+
+window.addEventListener('hashchange',()=>{
+  if(window.location.hash==='#admin') checkAdmin();
+  if(window.location.hash==='#resultados') showResultados();
+});
+
+function showResultados(){
+  // Hide the whole normal app, show only the resultados page
+  document.querySelector('.hdr')?.style.setProperty('display','none');
+  document.querySelector('.nav')?.style.setProperty('display','none');
+  document.querySelector('.main')?.style.setProperty('display','none');
+  document.querySelector('.toast')?.style.setProperty('display','none');
+  document.getElementById('pg-resultados').style.display = 'block';
+  loadResultados();
+}
+
+async function loadResultados(){
+  const FLAGS_R = {'Spain':'🇪🇸','Mexico':'🇲🇽','France':'🇫🇷','Italy':'🇮🇹','Portugal':'🇵🇹','Philippines':'🇵🇭','Argentina':'🇦🇷','Chile':'🇨🇱','Poland':'🇵🇱','Group':'🏢'};
+  const AV = ['#e0f2fc|#004f80','#dcfce7|#166534','#fef3c7|#92400e','#fce7f3|#9d174d','#ede9fe|#4c1d95','#ffedd5|#9a3412','#f0fdf4|#14532d','#fdf2f8|#701a75'];
+  const av = (i) => { const [bg,c]=AV[i%AV.length].split('|'); return `background:${bg};color:${c}`; };
+  const ini = (n) => (n||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  const medals = ['🥇','🥈','🥉'];
+
+  try {
+    const res = await fetch(`${SCRIPT_URL}?action=leaderboard`);
+    const data = JSON.parse(await res.text());
+    const entries = data.entries || [];
+
+    // Hero
+    const w = entries[0];
+    document.getElementById('res-hero-sub').textContent = w
+      ? `🏆 Winner: ${w.name} · ${w.total} pts · ${FLAGS_R[w.office]||''} ${w.office}`
+      : `${entries.length} participants`;
+    if(data.updatedAt) document.getElementById('res-updated').textContent =
+      'Updated ' + new Date(data.updatedAt).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+
+    // Podium
+    document.getElementById('res-podium').innerHTML = entries.slice(0,3).map((e,i)=>`
+      <div style="background:var(--white);border:0.5px solid ${i===0?'#f59e0b':i===1?'#94a3b8':'#b45309'};${i===0?'box-shadow:0 0 0 1px #f59e0b':''}border-radius:12px;padding:18px 14px;text-align:center">
+        <div style="font-size:28px;margin-bottom:6px">${medals[i]}</div>
+        <div style="width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;margin:0 auto 8px;${av(i)}">${ini(e.name)}</div>
+        <div style="font-size:13px;font-weight:600;margin-bottom:2px">${e.name||'—'}</div>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:8px">${FLAGS_R[e.office]||'🌍'} ${e.office||''}</div>
+        <div style="font-size:22px;font-weight:700;color:var(--ism)">${e.total||0}<span style="font-size:11px;color:var(--text3);font-weight:400"> pts</span></div>
+        <div style="display:flex;gap:4px;justify-content:center;margin-top:6px;flex-wrap:wrap">
+          <span style="font-size:10px;color:var(--text2);background:var(--bg2);border-radius:4px;padding:2px 6px">⚽ ${e.groups||0}</span>
+          <span style="font-size:10px;color:var(--text2);background:var(--bg2);border-radius:4px;padding:2px 6px">🏆 ${e.ko||0}</span>
+          <span style="font-size:10px;color:var(--text2);background:var(--bg2);border-radius:4px;padding:2px 6px">⭐ ${e.bonus||0}</span>
+        </div>
+      </div>`).join('');
+
+    // Full table
+    document.getElementById('res-full-lb').innerHTML = `
+      <table style="width:100%;border-collapse:collapse">
+        <thead>
+          <tr>
+            <th style="font-size:10px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;padding:6px 10px;text-align:left;border-bottom:0.5px solid var(--border);width:36px">#</th>
+            <th style="font-size:10px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;padding:6px 10px;text-align:left;border-bottom:0.5px solid var(--border)">Participant</th>
+            <th style="font-size:10px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;padding:6px 10px;text-align:right;border-bottom:0.5px solid var(--border)">Groups</th>
+            <th style="font-size:10px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;padding:6px 10px;text-align:right;border-bottom:0.5px solid var(--border)">KO</th>
+            <th style="font-size:10px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;padding:6px 10px;text-align:right;border-bottom:0.5px solid var(--border)">Bonus</th>
+            <th style="font-size:10px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;padding:6px 10px;text-align:right;border-bottom:0.5px solid var(--border)">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${entries.map((e,i)=>`
+            <tr style="border-bottom:0.5px solid var(--border)">
+              <td style="padding:9px 10px;text-align:center;font-size:${i<3?'16':'12'}px;color:var(--text3);font-weight:500">${i<3?medals[i]:i+1}</td>
+              <td style="padding:9px 10px">
+                <div style="display:flex;align-items:center;gap:8px">
+                  <div style="width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;${av(i)}">${ini(e.name)}</div>
+                  <div>
+                    <div style="font-size:13px;font-weight:500">${e.name||'—'}</div>
+                    <div style="font-size:11px;color:var(--text3)">${FLAGS_R[e.office]||'🌍'} ${e.office||''}</div>
+                  </div>
+                </div>
+              </td>
+              <td style="padding:9px 10px;font-size:12px;color:var(--text3);text-align:right">${e.groups||0}</td>
+              <td style="padding:9px 10px;font-size:12px;color:var(--text3);text-align:right">${e.ko||0}</td>
+              <td style="padding:9px 10px;font-size:12px;color:var(--text3);text-align:right">${e.bonus||0}</td>
+              <td style="padding:9px 10px;font-size:15px;font-weight:700;color:var(--ism);text-align:right">${e.total||0}</td>
+            </tr>`).join('')}
+        </tbody>
+      </table>`;
+
+    // Office ranking
+    const byO = {};
+    entries.forEach(e=>{ if(!e.office) return; if(!byO[e.office]) byO[e.office]={t:0,n:0}; byO[e.office].t+=e.total||0; byO[e.office].n++; });
+    const offs = Object.entries(byO).map(([name,d])=>({name,avg:Math.round(d.t/d.n),count:d.n})).sort((a,b)=>b.avg-a.avg);
+    const maxA = offs[0]?.avg||1;
+    document.getElementById('res-office-lb').innerHTML = offs.map((o,i)=>`
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:0.5px solid var(--border)${i===offs.length-1?';border-bottom:none':''}">
+        <span style="font-size:18px;width:28px;text-align:center">${medals[i]||''}</span>
+        <span style="font-size:20px">${FLAGS_R[o.name]||'🌍'}</span>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:500">${o.name}</div>
+          <div style="font-size:11px;color:var(--text3);margin-bottom:4px">${o.count} participant${o.count>1?'s':''}</div>
+          <div style="background:var(--bg2);border-radius:4px;height:6px;overflow:hidden"><div style="height:6px;border-radius:4px;background:var(--ism);width:${Math.round(o.avg/maxA*100)}%"></div></div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div style="font-size:16px;font-weight:700;color:var(--ism)">${o.avg}</div>
+          <div style="font-size:10px;color:var(--text3)">avg pts</div>
+        </div>
+      </div>`).join('');
+
+  } catch(e) {
+    document.getElementById('res-podium').innerHTML =
+      `<div style="grid-column:span 3;text-align:center;padding:30px;color:#ef4444">Error loading. <button onclick="loadResultados()" style="margin-left:8px;padding:4px 10px;border:0.5px solid #ef4444;border-radius:6px;background:none;color:#ef4444;cursor:pointer;font-size:12px">Retry</button></div>`;
+  }
+}
 </script>
 </body>
 </html>
