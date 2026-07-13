@@ -336,12 +336,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
     <!-- Top 10 mini leaderboard -->
     <div class="card" style="margin-bottom:16px">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
         <div class="slabel" style="margin-bottom:0"><i class="ti ti-trophy"></i> Top 10</div>
         <button onclick="nav('leaderboard',document.querySelectorAll('.ni')[2])"
           style="font-size:12px;color:var(--ism);background:none;border:none;cursor:pointer;padding:0">
           View all →
         </button>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;background:rgba(234,179,8,0.1);border:0.5px solid rgba(234,179,8,0.35);border-radius:8px;padding:8px 10px;margin-bottom:12px;font-size:11px;color:#b45309">
+        <i class="ti ti-clock-pause" style="font-size:13px;flex-shrink:0"></i>
+        Standings frozen. Will update when the winner is officially announced.
       </div>
       <div id="home-top10">
         <div style="text-align:center;color:var(--text3);font-size:13px;padding:16px 0">
@@ -526,6 +530,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div class="pg" id="pg-leaderboard">
 
     <div class="card" style="margin-bottom:12px">
+      <div style="display:flex;align-items:center;gap:6px;background:rgba(234,179,8,0.1);border:0.5px solid rgba(234,179,8,0.35);border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:12px;color:#b45309">
+        <i class="ti ti-clock-pause" style="font-size:15px;flex-shrink:0"></i>
+        <span>Standings frozen until the end of the World Cup. Will update when the official winner is announced. 🏆</span>
+      </div>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
         <div class="slabel" style="margin-bottom:0"><i class="ti ti-list-numbers"></i> Standings</div>
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
@@ -1383,10 +1391,10 @@ async function loadPredictions(){
     if(pg) pg.innerHTML=`
       <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 24px;text-align:center;gap:16px">
         <div style="font-size:48px">🔒</div>
-        <div style="font-size:18px;font-weight:600;color:var(--text)">Predicciones deshabilitadas</div>
+        <div style="font-size:18px;font-weight:600;color:var(--text)">Predictions temporarily hidden</div>
         <div style="font-size:14px;color:var(--text2);max-width:300px;line-height:1.6">
-          El acceso a las predicciones está temporalmente deshabilitado hasta el final del Mundial para preservar la intriga.<br><br>
-          ¡Los resultados se anunciarán pronto! 🏆
+          Access to predictions has been temporarily disabled until the end of the World Cup to keep the suspense alive.<br><br>
+          Results will be announced soon! 🏆
         </div>
       </div>`;
     return;
